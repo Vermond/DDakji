@@ -39,7 +39,7 @@ void ADDakjiPlayerController::Tick(float DeltaTime)
 
 	const float nextAnnoyTime = .05f;	
 
-	//tickTime -= DeltaTime;
+	tickTime -= DeltaTime;
 
 	if (tickTime < 0)
 	{
@@ -58,6 +58,7 @@ void ADDakjiPlayerController::Tick(float DeltaTime)
 void ADDakjiPlayerController::ChangeUI(Phase phase)
 {
 	//페이즈 변경 처리를 임시로 이 함수에서 수행한다
+	//적절한 위치 결정하면 꼭 옮기자
 	ADDakjiGameModeBase* gameMode = (ADDakjiGameModeBase*)GetWorld()->GetAuthGameMode();
 	gameMode->currentPhase = phase;
 
@@ -79,7 +80,7 @@ void ADDakjiPlayerController::ChangeUI(Phase phase)
 		//틱에서 방해 시작
 		SetActorTickEnabled(true);
 
-		SetUI(targetUIWidget);
+		//SetUI(targetUIWidget);
 		SetUI(nullptr);
 		break;
 	case Powering:
@@ -124,19 +125,22 @@ void ADDakjiPlayerController::SetupInputComponent()
 
 void ADDakjiPlayerController::GetWorldPosViaMouse()
 {	
-	GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Red, TEXT("pc"));
-	
 	ADDakjiGameModeBase* gamemode = (ADDakjiGameModeBase*)GetWorld()->GetAuthGameMode();
 
 	if (gamemode->currentPhase == Phase::Target)
 	{
-		//카메라 위치와 화면의 마우스 위치를 기준으로 해야 한다
+		FHitResult HitData(ForceInit);
+
+		FVector worldLocation;
+		FVector worldDirection;
+		//카메라 위치와 마우스 클릭을 기준으로 한다
+		DeprojectMousePositionToWorld(worldLocation, worldDirection);
+		
 		const FVector Start = cameraDirector->CameraTwo->GetActorLocation();
 		const FVector End = Start + cameraDirector->CameraTwo->GetActorRotation().Vector() * 512;
 
-		FHitResult HitData(ForceInit);
-
-		DrawDebugLine(GetWorld(), Start, End, FColor(255, 0, 0), false, 30.f, 0, 12.3f);
+		//클릭 위치 확인용 (디버그용)
+		//DrawDebugLine(GetWorld(), Start, End, FColor(0, 0, 255), false, 30.f, 0, 12.3f);
 
 		if(UMyStaticLibrary::Trace(GetWorld(), GetPawn(), Start, End, HitData))
 		{
