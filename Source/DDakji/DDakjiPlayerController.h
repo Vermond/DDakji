@@ -23,7 +23,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable)
-	void ChangeUI(Phase phase);
+	void ChangeUIByPhase(Phase phase);
 	
 	UFUNCTION(BlueprintCallable)
 		FVector2D GetMousePos();
@@ -35,13 +35,19 @@ protected:
 	void SetupInputComponent() override;
 
 private:
-	void SetUI(TSubclassOf<class UUserWidget> targetWidget, bool showCuror = true);
+	UFUNCTION()
+	void SetUI(TSubclassOf<class UUserWidget> targetWidget, bool showCursor = true);
+	void SetUIDelayed(TSubclassOf<class UUserWidget> targetWidget, bool showCursor = true);
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 		TSubclassOf<class UUserWidget> startUIWidget;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 		TSubclassOf<class UUserWidget> targetUIWidget;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+		TSubclassOf<class UUserWidget> powerUIWidget;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+		TSubclassOf<class UUserWidget> resultUIWidget;
 
 private:	
 	UUserWidget* currentUI;

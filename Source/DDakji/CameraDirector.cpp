@@ -65,7 +65,12 @@ void ACameraDirector::ChangeCamera(int cameraNum)
 	case 2:
 		OurPlayerController->SetViewTargetWithBlend(CameraTwo, 0.75f);
 		break;
+	case 3:
+		OurPlayerController->SetViewTargetWithBlend(CameraThree, 0.75f);
+		break;
 	default:
+		//디폴트는 일단 첫번째 카메라로 설정함
+		OurPlayerController->SetViewTargetWithBlend(CameraOne, 0.75f);
 		break;
 	}
 

@@ -32,5 +32,8 @@ public:
 	UPROPERTY(EditAnywhere)
 		AActor* CameraTwo;
 
+	UPROPERTY(EditAnywhere)
+		AActor* CameraThree;
+
 	float TimeToNextCameraChange;
 };

@@ -9,6 +9,7 @@
 #include "EngineUtils.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "UnrealString.h"
+#include "TimerManager.h"
 
 #include "DrawDebugHelpers.h"
 
@@ -55,7 +56,7 @@ void ADDakjiPlayerController::Tick(float DeltaTime)
 	}
 }
 
-void ADDakjiPlayerController::ChangeUI(Phase phase)
+void ADDakjiPlayerController::ChangeUIByPhase(Phase phase)
 {
 	//페이즈 변경 처리를 임시로 이 함수에서 수행한다
 	//적절한 위치 결정하면 꼭 옮기자
@@ -71,28 +72,33 @@ void ADDakjiPlayerController::ChangeUI(Phase phase)
 		//카메라 원위치
 		cameraDirector->ChangeCamera(1);
 
-		SetUI(startUIWidget);
+		SetUIDelayed(startUIWidget);
 		break;
 	case Target:
 		//딱지치기를 위한 상단으로 카메라 이동
 		cameraDirector->ChangeCamera(2);
+		
+		SetUIDelayed(nullptr);
 
 		//틱에서 방해 시작
 		SetActorTickEnabled(true);
-
-		//SetUI(targetUIWidget);
-		SetUI(nullptr);
 		break;
 	case Powering:
+		cameraDirector->ChangeCamera(3);
+
+		SetUIDelayed(powerUIWidget);
 		break;
 	case Result:
+		cameraDirector->ChangeCamera(4);
+
+		SetUIDelayed(resultUIWidget);
 		break;
 	default:
 		break;
 	}
 }
 
-void ADDakjiPlayerController::SetUI(TSubclassOf<class UUserWidget> targetWidget, bool showCuror)
+void ADDakjiPlayerController::SetUI(TSubclassOf<class UUserWidget> targetWidget, bool showCursor)
 {
 	if (nullptr != currentUI)
 	{
@@ -104,8 +110,25 @@ void ADDakjiPlayerController::SetUI(TSubclassOf<class UUserWidget> targetWidget,
 	{		
 		currentUI = CreateWidget<UUserWidget>(this, targetWidget);
 		currentUI->AddToViewport();
-		bShowMouseCursor = showCuror;
+		bShowMouseCursor = showCursor;
 	}
+}
+
+void ADDakjiPlayerController::SetUIDelayed(TSubclassOf<class UUserWidget> targetWidget, bool showCursor)
+{
+	if (nullptr != currentUI)
+	{
+		currentUI->RemoveFromViewport();
+		currentUI = nullptr;
+	}
+
+	FTimerDelegate tempDelegate;
+	FTimerHandle TimerHandle;
+
+	//타이머를 이용해 화면 전환 시간동안 UI 출력을 지연시킨다
+	tempDelegate.BindUFunction(this, FName("SetUI"), targetWidget, showCursor);
+
+	GetWorldTimerManager().SetTimer(TimerHandle, tempDelegate, .75f, false);
 }
 
 FVector2D ADDakjiPlayerController::GetMousePos()
@@ -123,6 +146,7 @@ void ADDakjiPlayerController::SetupInputComponent()
 	InputComponent->BindAction("Click", IE_Pressed, this, &ADDakjiPlayerController::GetWorldPosViaMouse);
 }
 
+//원하는 시점이 아닌 곳에서 아무데나 빈 화면을 눌러도 바로 넘어가버리는 버그 있음
 void ADDakjiPlayerController::GetWorldPosViaMouse()
 {	
 	ADDakjiGameModeBase* gamemode = (ADDakjiGameModeBase*)GetWorld()->GetAuthGameMode();
@@ -144,9 +168,13 @@ void ADDakjiPlayerController::GetWorldPosViaMouse()
 
 		if(UMyStaticLibrary::Trace(GetWorld(), GetPawn(), Start, End, HitData))
 		{
+			//현재는 디버깅 위해 정보 텍스트로 출력중
+			//다음 화면으로 데이터 넘겨주는 것으로 업데이트할 것
 			FString resultText = FString::Printf(TEXT("[%s] %s"), *HitData.Actor->GetName(), *HitData.Location.ToString());
 
 			GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Red, resultText);
 		}
+
+		ChangeUIByPhase(Phase::Powering);
 	}
 }
