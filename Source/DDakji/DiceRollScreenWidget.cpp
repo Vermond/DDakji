@@ -13,20 +13,35 @@ UDiceRollScreenWidget::UDiceRollScreenWidget(const FObjectInitializer& objectIni
 
 	totalTime = 0;
 	changeTime = .1f;
+	changeTime2 = .1f;
+	changeTime3 = .1f;
+
+	resultDice1Power = 0;
+	resultDice2Power = 0;
+	resultDice3Power = 0;
+
+	bEnableDiceRoll1 = true;
+	bEnableDiceRoll2 = true;
+	bEnableDiceRoll3 = true;
+}
+
+void UDiceRollScreenWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	diceRepeatTimerDelegate1.BindUFunction(this, FName("ChangeDiceImage"), 1);
+	GetWorld()->GetTimerManager().SetTimer(diceRepeatTimerHandle1, diceRepeatTimerDelegate1, changeTime, true);
+
+	diceRepeatTimerDelegate2.BindUFunction(this, FName("ChangeDiceImage"), 2);
+	GetWorld()->GetTimerManager().SetTimer(diceRepeatTimerHandle2, diceRepeatTimerDelegate2, changeTime, true);
+
+	diceRepeatTimerDelegate3.BindUFunction(this, FName("ChangeDiceImage"), 3);
+	GetWorld()->GetTimerManager().SetTimer(diceRepeatTimerHandle3, diceRepeatTimerDelegate3, changeTime, true);
 }
 
 void UDiceRollScreenWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
-
-	totalTime += InDeltaTime;
-
-	if (totalTime > changeTime)
-	{
-		totalTime = 0;
-
-		ChangeDiceImage();
-	}
 }
 
 void UDiceRollScreenWidget::SetDiceImage(UImage* image, UImage* image2, UImage* image3)
@@ -36,25 +51,27 @@ void UDiceRollScreenWidget::SetDiceImage(UImage* image, UImage* image2, UImage* 
 	diceImage3 = image3;
 }
 
-void UDiceRollScreenWidget::ChangeDiceImage()
+void UDiceRollScreenWidget::ChangeDiceImage(int32 itemNum)
 {
 	//랜덤
 	//https://msdn.microsoft.com/ko-kr/library/windows/desktop/398ax69y.aspx
 	int r;
 
-	if (bEnableDiceRoll1)
+	if (bEnableDiceRoll1 && itemNum == 1)
 	{
 		r = (double)rand() / (RAND_MAX + 1) * 5;
 		diceImage1->SetBrush(brushes[r]);
-
+	}
+	if (bEnableDiceRoll2 && itemNum == 2)
+	{
 		r = (double)rand() / (RAND_MAX + 1) * 5;
 		diceImage2->SetBrush(brushes[r]);
-
+	}
+	if (bEnableDiceRoll3 && itemNum == 3)
+	{
 		r = (double)rand() / (RAND_MAX + 1) * 5;
 		diceImage3->SetBrush(brushes[r]);
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("ChangeDiceImage : %f"), changeTime);
 }
 
 void UDiceRollScreenWidget::GetDiceImageAsync()
@@ -90,38 +107,130 @@ void UDiceRollScreenWidget::GetDiceImageAsync()
 	}
 }
 
-void UDiceRollScreenWidget::SubmitPower()
+void UDiceRollScreenWidget::SubmitPower(int32 itemNum)
 {
+	int* rp;
+	FTimerDelegate* td;
+	FTimerHandle* th;
+
+	switch (itemNum)
+	{
+	case 1:
+		rp = &resultDice1Power;
+		td = &decreasePowerTimerDelegate;
+		th = &decreasePowerTimerHandle;
+		break;
+	case 2:
+		rp = &resultDice2Power;
+		td = &decreasePowerTimerDelegate2;
+		th = &decreasePowerTimerHandle2;
+		break;
+	case 3:
+		rp = &resultDice3Power;
+		td = &decreasePowerTimerDelegate3;
+		th = &decreasePowerTimerHandle3;
+		break;
+	default:
+		//그냥 종료해버린다.
+		//로그는 임시로 넣었으니 적절한 구문으로 변경하자
+		UE_LOG(LogTemp, Warning, TEXT("SubmitPower got wrong power"));
+		return;
+	}
+
 	//버튼 클릭시 주사위 최종 값을 결정한다
-	resultDice1Power = (double)rand() / (RAND_MAX + 1) * 5;
+	*rp = (double)rand() / (RAND_MAX + 1) * 5;
 
 	//버튼 클릭시 주사위 변하는 속도를 조금씩 낮춘다
-	//tempDelegate.BindUFunction(this, FName("SetUI"), targetWidget, showCursor);
-	timerDelegate.BindUFunction(this, FName("DecreaseRollTime"));
-	GetWorld()->GetTimerManager().SetTimer(timerHandle, timerDelegate, 3, true);
+	td->BindUFunction(this, FName("DecreaseRollTime"), itemNum);
+	GetWorld()->GetTimerManager().SetTimer(*th, *td, 3, true);
 }
 
-void UDiceRollScreenWidget::DecreaseRollTime()
+void UDiceRollScreenWidget::DecreaseRollTime(int32 itemNum)
 {
-	changeTime *= 2;
-	UE_LOG(LogTemp, Warning, TEXT("DecreaseRollTime"));
+	float* ct;
+	FTimerHandle* th;
+	FTimerHandle* repeatHandle;
+	FTimerDelegate* repeatDel;
 
-	if (changeTime > 0.5f)
+
+	switch (itemNum)
 	{
-		GetWorld()->GetTimerManager().ClearTimer(timerHandle);
-		StopAndGo();
+	case 1:
+		ct = &changeTime;
+		th = &decreasePowerTimerHandle;
+		repeatHandle = &diceRepeatTimerHandle1;
+		repeatDel = &diceRepeatTimerDelegate1;
+		break;
+	case 2:
+		ct = &changeTime2;
+		th = &decreasePowerTimerHandle2;
+		repeatHandle = &diceRepeatTimerHandle2;
+		repeatDel = &diceRepeatTimerDelegate2;
+		break;
+	case 3:
+		ct = &changeTime3;
+		th = &decreasePowerTimerHandle3;
+		repeatHandle = &diceRepeatTimerHandle3;
+		repeatDel = &diceRepeatTimerDelegate3;
+		break;
+	default:
+		//아무것도 안함
+		return;
+	}
+
+	*ct *= 2;
+	GetWorld()->GetTimerManager().ClearTimer(*repeatHandle);
+
+	UE_LOG(LogTemp, Warning, TEXT("DecreaseRollTime %d %f"), itemNum, *ct);
+
+	if (*ct > 0.5f)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(*th);
+		StopAndGo(itemNum);
+	}
+	else
+	{
+		GetWorld()->GetTimerManager().SetTimer(*repeatHandle, *repeatDel, *ct, true);
 	}
 }
 
-void UDiceRollScreenWidget::StopAndGo()
+void UDiceRollScreenWidget::StopAndGo(int32 itemNum)
 {
-	bEnableDiceRoll1 = false;
-	UE_LOG(LogTemp, Warning, TEXT("Result Power %d"), resultDice1Power + 1);
+	UImage* dice;
+	int* dicePower;
+
+	switch (itemNum)
+	{
+	case 1:
+		bEnableDiceRoll1 = false;
+		dicePower = &resultDice1Power;
+		dice = diceImage1;
+		break;
+	case 2:
+		bEnableDiceRoll2 = false;
+		dicePower = &resultDice2Power;
+		dice = diceImage2;
+		break;
+	case 3:
+		bEnableDiceRoll3 = false;
+		dicePower = &resultDice3Power;
+		dice = diceImage3;
+		break;
+	default:
+		//아무것도 안함
+		return;
+	}
 
 	//실제 값으로 멈추도록 변경해야 한다
-	diceImage1->SetBrush(brushes[resultDice1Power]);
-	
+	dice->SetBrush(brushes[*dicePower]);
+
 	//싱글에서만 동작할 것으로 예상된다. 수정 필요함
-	ADDakjiPlayerController* pc = (ADDakjiPlayerController*)GWorld->GetFirstPlayerController();
-	pc->ChangeUIByPhase(Phase::Result);
+	if (!bEnableDiceRoll1 && !bEnableDiceRoll2 && !bEnableDiceRoll3)
+	{
+		ADDakjiPlayerController* pc = (ADDakjiPlayerController*)GWorld->GetFirstPlayerController();
+		pc->dicePower = resultDice1Power + resultDice2Power + resultDice3Power;
+		pc->ChangeUIByPhase(Phase::Result);
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Result Power %d %d %d"), resultDice1Power + 1, resultDice2Power + 1, resultDice3Power + 1);
 }

@@ -49,9 +49,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 		TSubclassOf<class UUserWidget> resultUIWidget;
 
+	int32 dicePower = 0;
+	float clickDistance = 0;
+	float guardPoint = 0;
+
 private:	
 	UUserWidget* currentUI;
 	ACameraDirector* cameraDirector;
 
 	float tickTime;
+
 };

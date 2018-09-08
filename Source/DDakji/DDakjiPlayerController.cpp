@@ -157,22 +157,27 @@ void ADDakjiPlayerController::GetWorldPosViaMouse()
 
 		FVector worldLocation;
 		FVector worldDirection;
+
 		//카메라 위치와 마우스 클릭을 기준으로 한다
 		DeprojectMousePositionToWorld(worldLocation, worldDirection);
 		
-		const FVector Start = cameraDirector->CameraTwo->GetActorLocation();
-		const FVector End = Start + cameraDirector->CameraTwo->GetActorRotation().Vector() * 512;
-
-		//클릭 위치 확인용 (디버그용)
-		//DrawDebugLine(GetWorld(), Start, End, FColor(0, 0, 255), false, 30.f, 0, 12.3f);
+		const FVector Start = worldLocation;
+		const FVector End = Start + worldDirection * 512;
 
 		if(UMyStaticLibrary::Trace(GetWorld(), GetPawn(), Start, End, HitData))
 		{
-			//현재는 디버깅 위해 정보 텍스트로 출력중
-			//다음 화면으로 데이터 넘겨주는 것으로 업데이트할 것
-			FString resultText = FString::Printf(TEXT("[%s] %s"), *HitData.Actor->GetName(), *HitData.Location.ToString());
+			//클릭 위치가 오브젝트 중심에서 떨어진 길이를 구한다.
+			//상단 평면에서만 계산하는 것으로 가정하므로 높이는 무시한다.
+			FVector actorLoc = HitData.Actor->GetActorLocation();
+			FVector clickLoc = HitData.Location;
 
-			GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Red, resultText);
+			clickDistance = sqrtf(powf(actorLoc.X - clickLoc.X, 2) + pow(actorLoc.Y - clickLoc.Y, 2));
+
+			//충격 효과가 최소화가 되는 지점과의 길이를 구한다
+			//원형으로 가정하며 아래 식은 임시로 구현한다 (15% 위치를 기준으로 함)
+			FVector origin, boxExtend;
+			HitData.Actor->GetActorBounds(true, origin, boxExtend);
+			guardPoint = sqrtf(powf(boxExtend.X * 0.15, 2) + pow(boxExtend.Y * 0.15, 2));
 		}
 
 		ChangeUIByPhase(Phase::Powering);
