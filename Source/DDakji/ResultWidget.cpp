@@ -2,14 +2,15 @@
 
 #include "ResultWidget.h"
 #include "DDakjiPlayerController.h"
+#include "MyStaticLibrary.h"
 
 float UResultWidget::GetPowerResult()
 {
-	ADDakjiPlayerController* pc = (ADDakjiPlayerController*)GWorld->GetFirstPlayerController();
+	ADDakjiGameModeBase* gamemode = UMyStaticLibrary::GetGameMode();
 	
-	float guardPoint = pc->guardPoint; //변수명 변경해야 함
-	float distance = pc->clickDistance;
-	int32 dicePower = pc->dicePower;
+	float guardPoint = gamemode->GetGuardPoint();
+	float distance = gamemode->GetClickDistance();
+	int32 dicePower = gamemode->GetDicePower();
 
 	//타격이 제일 효과적인 범위를 나타내는 길이
 	//적절한 위치로 옮겨야 함

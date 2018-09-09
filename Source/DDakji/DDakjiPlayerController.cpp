@@ -171,13 +171,13 @@ void ADDakjiPlayerController::GetWorldPosViaMouse()
 			FVector actorLoc = HitData.Actor->GetActorLocation();
 			FVector clickLoc = HitData.Location;
 
-			clickDistance = sqrtf(powf(actorLoc.X - clickLoc.X, 2) + pow(actorLoc.Y - clickLoc.Y, 2));
-
+			UMyStaticLibrary::GetGameMode()->SetClickDistance(sqrtf(powf(actorLoc.X - clickLoc.X, 2) + pow(actorLoc.Y - clickLoc.Y, 2)));
+			
 			//충격 효과가 최소화가 되는 지점과의 길이를 구한다
 			//원형으로 가정하며 아래 식은 임시로 구현한다 (15% 위치를 기준으로 함)
 			FVector origin, boxExtend;
 			HitData.Actor->GetActorBounds(true, origin, boxExtend);
-			guardPoint = sqrtf(powf(boxExtend.X * 0.15, 2) + pow(boxExtend.Y * 0.15, 2));
+			UMyStaticLibrary::GetGameMode()->SetGuardPoint(sqrtf(powf(boxExtend.X * 0.15, 2) + pow(boxExtend.Y * 0.15, 2)));
 		}
 
 		ChangeUIByPhase(Phase::Powering);

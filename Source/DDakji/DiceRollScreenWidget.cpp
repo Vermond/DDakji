@@ -3,7 +3,8 @@
 #include "DiceRollScreenWidget.h"
 
 #include "DDakjiPlayerController.h"
-
+#include "DDakjiGameModeBase.h"
+#include "MyStaticLibrary.h"
 #include "Engine/Texture2D.h"
 #include "TimerManager.h"
 
@@ -227,8 +228,9 @@ void UDiceRollScreenWidget::StopAndGo(int32 itemNum)
 	//싱글에서만 동작할 것으로 예상된다. 수정 필요함
 	if (!bEnableDiceRoll1 && !bEnableDiceRoll2 && !bEnableDiceRoll3)
 	{
+		ADDakjiGameModeBase* gamemode = UMyStaticLibrary::GetGameMode();
 		ADDakjiPlayerController* pc = (ADDakjiPlayerController*)GWorld->GetFirstPlayerController();
-		pc->dicePower = resultDice1Power + resultDice2Power + resultDice3Power;
+		gamemode->SetDicePower(resultDice1Power + resultDice2Power + resultDice3Power);
 		pc->ChangeUIByPhase(Phase::Result);
 	}
 

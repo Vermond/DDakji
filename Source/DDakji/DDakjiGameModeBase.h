@@ -15,6 +15,23 @@ class DDAKJI_API ADDakjiGameModeBase : public AGameModeBase
 public:
 	ADDakjiGameModeBase();
 
+#pragma region Get/Set functions
+	int32 GetDicePower();
+	void SetDicePower(int32 value);
+
+	float GetClickDistance();
+	void SetClickDistance(float value);
+
+	float GetGuardPoint();
+	void SetGuardPoint(float value);
+#pragma endregion
+
+
 public:
 	Phase currentPhase;
+
+private:
+	int32 dicePower = 0;
+	float clickDistance = 0;
+	float guardPoint = 0;
 };

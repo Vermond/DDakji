@@ -2,6 +2,8 @@
 
 #include "CameraDirector.h"
 
+#include "MyStaticLibrary.h"
+
 #include "Kismet/GameplayStatics.h"
 
 
@@ -18,7 +20,7 @@ void ACameraDirector::BeginPlay()
 {
 	Super::BeginPlay();
 
-	APlayerController* OurPlayerController = UGameplayStatics::GetPlayerController(this, 0);
+	APlayerController* OurPlayerController = UMyStaticLibrary::GetPlayerController();
 	OurPlayerController->SetViewTarget(CameraOne);	
 }
 
@@ -26,36 +28,11 @@ void ACameraDirector::BeginPlay()
 void ACameraDirector::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	/*
-	const float TimeBetweenCameraChanges = 2.0f;
-	const float SmoothBlendTime = 0.75f;
-
-	TimeToNextCameraChange -= DeltaTime;
-	if (TimeToNextCameraChange <= 0.0f)
-	{
-		TimeToNextCameraChange += TimeBetweenCameraChanges;
-
-		// 로컬 플레이어의 콘트롤을 처리하는 액터를 찾습니다.
-		APlayerController* OurPlayerController = UGameplayStatics::GetPlayerController(this, 0);
-		if (OurPlayerController)
-		{
-			if ((OurPlayerController->GetViewTarget() != CameraOne) && (CameraOne != nullptr))
-			{
-				// 1 번 카메라로 즉시 컷해 들어갑니다.
-				OurPlayerController->SetViewTarget(CameraOne);
-			}
-			else if ((OurPlayerController->GetViewTarget() != CameraTwo) && (CameraTwo != nullptr))
-			{
-				// 2 번 카메라로 부드럽게 전환합니다.
-				OurPlayerController->SetViewTargetWithBlend(CameraTwo, SmoothBlendTime);
-			}
-		}
-	}*/
 }
 
 void ACameraDirector::ChangeCamera(int cameraNum)
 {
-	APlayerController* OurPlayerController = UGameplayStatics::GetPlayerController(this, 0);
+	APlayerController* OurPlayerController = UMyStaticLibrary::GetPlayerController();
 
 	switch (cameraNum)
 	{
@@ -67,6 +44,9 @@ void ACameraDirector::ChangeCamera(int cameraNum)
 		break;
 	case 3:
 		OurPlayerController->SetViewTargetWithBlend(CameraThree, 0.75f);
+		break;
+	case 4:
+		OurPlayerController->SetViewTargetWithBlend(CameraFour, 0.75f);
 		break;
 	default:
 		//디폴트는 일단 첫번째 카메라로 설정함

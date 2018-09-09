@@ -3,9 +3,9 @@
 #include "GameFramework/Actor.h"
 #include "CollisionQueryParams.h"
 #include "Engine/World.h"
-
+#include "DDakjiGameModeBase.h"
+#include "DDakjiPlayerController.h"
 #include "MyStaticLibrary.generated.h"
-
 
 //https://wiki.unrealengine.com/Trace_Functions
 UCLASS()
@@ -13,6 +13,7 @@ class UMyStaticLibrary : public UObject
 {
 	GENERATED_UCLASS_BODY()
 
+public:
 	//FORCEINLNE function
 	static FORCEINLINE bool IsValid(AActor* TheActor)
 	{
@@ -58,6 +59,14 @@ class UMyStaticLibrary : public UObject
 		//Hit any Actor?
 		return (HitOut.GetActor() != NULL);
 	}
-	//cpp function
-	//static int32 ComplicatedGameDataAnalysis();
+
+	static FORCEINLINE ADDakjiGameModeBase* GetGameMode()
+	{
+		return (ADDakjiGameModeBase*)GWorld->GetAuthGameMode();
+	}
+
+	static FORCEINLINE ADDakjiPlayerController* GetPlayerController()
+	{
+		return (ADDakjiPlayerController*)GWorld->GetFirstPlayerController();
+	}
 };
