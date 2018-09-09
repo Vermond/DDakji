@@ -24,6 +24,10 @@ UDiceRollScreenWidget::UDiceRollScreenWidget(const FObjectInitializer& objectIni
 	bEnableDiceRoll1 = true;
 	bEnableDiceRoll2 = true;
 	bEnableDiceRoll3 = true;
+
+	startBrush.TintColor = FLinearColor::White;
+	decreasingBrush.TintColor = FLinearColor::Yellow;
+	stopBrush.TintColor = FLinearColor::Black;
 }
 
 void UDiceRollScreenWidget::NativeConstruct()
@@ -50,6 +54,17 @@ void UDiceRollScreenWidget::SetDiceImage(UImage* image, UImage* image2, UImage* 
 	diceImage1 = image;
 	diceImage2 = image2;
 	diceImage3 = image3;
+}
+
+void UDiceRollScreenWidget::SetBorder(UBorder* val1, UBorder* val2, UBorder* val3)
+{
+	border1 = val1;
+	border2 = val2;
+	border3 = val3;
+
+	border1->SetBrush(startBrush);
+	border2->SetBrush(startBrush);
+	border3->SetBrush(startBrush);
 }
 
 void UDiceRollScreenWidget::ChangeDiceImage(int32 itemNum)
@@ -120,16 +135,19 @@ void UDiceRollScreenWidget::SubmitPower(int32 itemNum)
 		rp = &resultDice1Power;
 		td = &decreasePowerTimerDelegate;
 		th = &decreasePowerTimerHandle;
+		border1->SetBrush(decreasingBrush);
 		break;
 	case 2:
 		rp = &resultDice2Power;
 		td = &decreasePowerTimerDelegate2;
 		th = &decreasePowerTimerHandle2;
+		border2->SetBrush(decreasingBrush);
 		break;
 	case 3:
 		rp = &resultDice3Power;
 		td = &decreasePowerTimerDelegate3;
 		th = &decreasePowerTimerHandle3;
+		border3->SetBrush(decreasingBrush);
 		break;
 	default:
 		//그냥 종료해버린다.
@@ -182,8 +200,6 @@ void UDiceRollScreenWidget::DecreaseRollTime(int32 itemNum)
 	*ct *= 2;
 	GetWorld()->GetTimerManager().ClearTimer(*repeatHandle);
 
-	UE_LOG(LogTemp, Warning, TEXT("DecreaseRollTime %d %f"), itemNum, *ct);
-
 	if (*ct > 0.5f)
 	{
 		GetWorld()->GetTimerManager().ClearTimer(*th);
@@ -206,16 +222,19 @@ void UDiceRollScreenWidget::StopAndGo(int32 itemNum)
 		bEnableDiceRoll1 = false;
 		dicePower = &resultDice1Power;
 		dice = diceImage1;
+		border1->SetBrush(stopBrush);
 		break;
 	case 2:
 		bEnableDiceRoll2 = false;
 		dicePower = &resultDice2Power;
 		dice = diceImage2;
+		border2->SetBrush(stopBrush);
 		break;
 	case 3:
 		bEnableDiceRoll3 = false;
 		dicePower = &resultDice3Power;
 		dice = diceImage3;
+		border3->SetBrush(stopBrush);
 		break;
 	default:
 		//아무것도 안함
@@ -228,11 +247,9 @@ void UDiceRollScreenWidget::StopAndGo(int32 itemNum)
 	//싱글에서만 동작할 것으로 예상된다. 수정 필요함
 	if (!bEnableDiceRoll1 && !bEnableDiceRoll2 && !bEnableDiceRoll3)
 	{
-		ADDakjiGameModeBase* gamemode = UMyStaticLibrary::GetGameMode();
+		ADDakjiGameModeBase* gamemode = UMyStaticLibrary::GetGameMode(this);
 		ADDakjiPlayerController* pc = (ADDakjiPlayerController*)GWorld->GetFirstPlayerController();
 		gamemode->SetDicePower(resultDice1Power + resultDice2Power + resultDice3Power);
 		pc->ChangeUIByPhase(Phase::Result);
-	}
-
-	UE_LOG(LogTemp, Warning, TEXT("Result Power %d %d %d"), resultDice1Power + 1, resultDice2Power + 1, resultDice3Power + 1);
+	}	
 }

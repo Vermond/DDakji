@@ -28,9 +28,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 		FVector2D GetMousePos();
 
-	UFUNCTION()
-		void GetWorldPosViaMouse();
-
 protected:
 	void SetupInputComponent() override;
 
@@ -53,7 +50,4 @@ public:
 private:	
 	UUserWidget* currentUI;
 	ACameraDirector* cameraDirector;
-
-	float tickTime;
-
 };

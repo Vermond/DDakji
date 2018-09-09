@@ -16,6 +16,7 @@ public:
 	ADDakjiGameModeBase();
 
 #pragma region Get/Set functions
+public:
 	int32 GetDicePower();
 	void SetDicePower(int32 value);
 
@@ -24,13 +25,14 @@ public:
 
 	float GetGuardPoint();
 	void SetGuardPoint(float value);
+
+	Phase GetCurrentPhase();
+	void SetCurrentPhase(Phase value);
 #pragma endregion
-
-
-public:
+	
+private:
 	Phase currentPhase;
 
-private:
 	int32 dicePower = 0;
 	float clickDistance = 0;
 	float guardPoint = 0;

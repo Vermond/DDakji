@@ -60,13 +60,13 @@ public:
 		return (HitOut.GetActor() != NULL);
 	}
 
-	static FORCEINLINE ADDakjiGameModeBase* GetGameMode()
+	static FORCEINLINE ADDakjiGameModeBase* GetGameMode(const UObject* object)
 	{
-		return (ADDakjiGameModeBase*)GWorld->GetAuthGameMode();
+		return (ADDakjiGameModeBase*)GEngine->GetWorldFromContextObject(object)->GetAuthGameMode();
 	}
 
-	static FORCEINLINE ADDakjiPlayerController* GetPlayerController()
+	static FORCEINLINE ADDakjiPlayerController* GetPlayerController(const UObject* object)
 	{
-		return (ADDakjiPlayerController*)GWorld->GetFirstPlayerController();
+		return (ADDakjiPlayerController*)GEngine->GetWorldFromContextObject(object)->GetFirstPlayerController();
 	}
 };

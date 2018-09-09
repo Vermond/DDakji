@@ -20,7 +20,7 @@ void ACameraDirector::BeginPlay()
 {
 	Super::BeginPlay();
 
-	APlayerController* OurPlayerController = UMyStaticLibrary::GetPlayerController();
+	APlayerController* OurPlayerController = UMyStaticLibrary::GetPlayerController(this);
 	OurPlayerController->SetViewTarget(CameraOne);	
 }
 
@@ -32,7 +32,7 @@ void ACameraDirector::Tick(float DeltaTime)
 
 void ACameraDirector::ChangeCamera(int cameraNum)
 {
-	APlayerController* OurPlayerController = UMyStaticLibrary::GetPlayerController();
+	APlayerController* OurPlayerController = UMyStaticLibrary::GetPlayerController(this);
 
 	switch (cameraNum)
 	{

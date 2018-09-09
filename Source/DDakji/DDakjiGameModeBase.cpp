@@ -19,4 +19,6 @@ void ADDakjiGameModeBase::SetClickDistance(float value) { clickDistance = value;
 float ADDakjiGameModeBase::GetGuardPoint() { return guardPoint; }
 void ADDakjiGameModeBase::SetGuardPoint(float value) { guardPoint = value; }
 
+Phase ADDakjiGameModeBase::GetCurrentPhase() { return currentPhase; }
+void ADDakjiGameModeBase::SetCurrentPhase(Phase value) { currentPhase = value; }
 #pragma endregion

@@ -7,6 +7,7 @@
 #include "Styling/SlateBrush.h"
 #include "Image.h"
 #include "Engine/ObjectLibrary.h"
+#include "Border.h"
 #include "DiceRollScreenWidget.generated.h"
 
 /**
@@ -27,6 +28,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Widget")
 		void SetDiceImage(UImage* image, UImage* image2, UImage* image3);
 	UFUNCTION(BlueprintCallable, Category = "Widget")
+		void SetBorder(UBorder* val1, UBorder* val2, UBorder* val3);
+
+	UFUNCTION(BlueprintCallable, Category = "Widget")
 		void ChangeDiceImage(int32 itemNum);
 	UFUNCTION(BlueprintCallable, Category = "Widget")
 		void SubmitPower(int32 itemNum);
@@ -43,17 +47,26 @@ protected:
 	UImage* diceImage2;
 	UImage* diceImage3;
 
+	UBorder* border1;
+	UBorder* border2;
+	UBorder* border3;
 
 private:
 	float totalTime;
-	float changeTime;
-	float changeTime2;
-	float changeTime3;
-
 	TArray<FSlateBrush> brushes;
 
 	UObjectLibrary* ObjectLibrary = nullptr;
 	bool bFullyLoad = false;
+
+#pragma region vars collection for repeat
+
+	FSlateBrush startBrush;
+	FSlateBrush decreasingBrush;
+	FSlateBrush stopBrush;
+
+	float changeTime;
+	float changeTime2;
+	float changeTime3;
 
 	FTimerHandle decreasePowerTimerHandle;
 	FTimerHandle decreasePowerTimerHandle2;
@@ -75,4 +88,5 @@ private:
 	int resultDice1Power;
 	int resultDice2Power;
 	int resultDice3Power;
+#pragma endregion
 };
