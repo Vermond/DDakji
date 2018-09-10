@@ -8,6 +8,8 @@
 UENUM(BlueprintType)
 enum Phase
 {
+	Main,
+	Select,
 	Start,
 	Target,
 	Powering,

@@ -29,7 +29,7 @@ void ADDakjiPlayerController::BeginPlay()
 		break;
 	}
 
-	SetUI(startUIWidget);
+	SetUI(mainUIWidget);
 }
 
 void ADDakjiPlayerController::Tick(float DeltaTime)
@@ -46,11 +46,17 @@ void ADDakjiPlayerController::ChangeUIByPhase(Phase phase)
 	
 	switch (phase)
 	{
+	case Main:
+		SetUI(mainUIWidget);
+		break;
+	case Select:
+		SetUI(selectUIWidget);
+		break;
 	case Start:
 		//카메라 원위치
 		cameraDirector->ChangeCamera(1);
 
-		SetUIDelayed(startUIWidget);
+		SetUI(startUIWidget);
 		break;
 	case Target:
 		//딱지치기를 위한 상단으로 카메라 이동

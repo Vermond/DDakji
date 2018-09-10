@@ -160,6 +160,7 @@ void UDiceRollScreenWidget::SubmitPower(int32 itemNum)
 	*rp = (double)rand() / (RAND_MAX + 1) * 5;
 
 	//버튼 클릭시 주사위 변하는 속도를 조금씩 낮춘다
+	//주사위 변하는 속도가 유동적으로 변해야 한다
 	td->BindUFunction(this, FName("DecreaseRollTime"), itemNum);
 	GetWorld()->GetTimerManager().SetTimer(*th, *td, 3, true);
 }
