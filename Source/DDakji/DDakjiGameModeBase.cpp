@@ -5,6 +5,8 @@
 ADDakjiGameModeBase::ADDakjiGameModeBase()
 {
 	currentPhase = Phase::Start;
+	currentPlayer = Playing::Myself;
+	currentPlayMode = PlayMode::Practice;
 }
 
 
@@ -21,4 +23,10 @@ void ADDakjiGameModeBase::SetGuardPoint(float value) { guardPoint = value; }
 
 Phase ADDakjiGameModeBase::GetCurrentPhase() { return currentPhase; }
 void ADDakjiGameModeBase::SetCurrentPhase(Phase value) { currentPhase = value; }
+
+Playing ADDakjiGameModeBase::GetCurrentPlayer() { return currentPlayer; }
+void ADDakjiGameModeBase::SetCurrentPlayer(Playing value) { currentPlayer = value; }
+
+PlayMode ADDakjiGameModeBase::GetCurrentPlayMode() { return currentPlayMode; }
+void ADDakjiGameModeBase::SetCurrentPlayMode(PlayMode value) { currentPlayMode = value; }
 #pragma endregion

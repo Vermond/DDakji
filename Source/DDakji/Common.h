@@ -15,3 +15,20 @@ enum Phase
 	Powering,
 	Result
 };
+
+UENUM(BlueprintType)
+enum Playing
+{
+	Myself,
+	Other,
+	Computer
+};
+
+UENUM(BlueprintType)
+enum PlayMode
+{
+	Practice,
+	VSCom,
+	Local,
+	Online
+};

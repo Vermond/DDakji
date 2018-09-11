@@ -6,25 +6,50 @@
 #include "DDakjiGameModeBase.h"
 #include "MyStaticLibrary.h"
 #include "Engine/Texture2D.h"
-#include "TimerManager.h"
 
+/////////////////////////////////////////
+//DiceRepeat 클래스 구현
+/////////////////////////////////////////
+DiceRepeat::DiceRepeat() : DiceRepeat(.1f, 3, true)
+{
+}
+
+DiceRepeat::DiceRepeat(float diceRoll, float rollSlow, bool bEnableRoll = true)
+	: diceRollTime(diceRoll), rollSlowTime(rollSlow), bEnableDiceRoll(bEnableRoll), resultDiceNum(0)
+{
+}
+
+
+void DiceRepeat::SetTimer(const UObject* object, FTimerHandle& timerHandle, FTimerDelegate& timerDelegate, float changeTime)
+{
+	GEngine->GetWorldFromContextObjectChecked(object)->GetTimerManager().SetTimer(timerHandle, timerDelegate, changeTime, true);
+}
+
+void DiceRepeat::ClearTimer(const UObject* object, FTimerHandle& timerHandle)
+{
+	GEngine->GetWorldFromContextObjectChecked(object)->GetTimerManager().PauseTimer(timerHandle);
+}
+
+
+///////////////////////////////////////////
+//UDiceRollScreenWidget 클래스 구현
+///////////////////////////////////////////
 UDiceRollScreenWidget::UDiceRollScreenWidget(const FObjectInitializer& objectInitializer) : Super(objectInitializer)
 {
 	GetDiceImageAsync();
 
-	totalTime = 0;
-	changeTime = .1f;
-	changeTime2 = .1f;
-	changeTime3 = .1f;
+	diceRepeats.Add(DiceRepeat(.1f, 3));
+	diceRepeats.Add(DiceRepeat(.1f, 3));
+	diceRepeats.Add(DiceRepeat(.1f, 3));
 
-	resultDice1Power = 0;
-	resultDice2Power = 0;
-	resultDice3Power = 0;
+	rollSlowTimerDelegates.Add(FTimerDelegate());
+	rollSlowTimerDelegates.Add(FTimerDelegate());
+	rollSlowTimerDelegates.Add(FTimerDelegate());
 
-	bEnableDiceRoll1 = true;
-	bEnableDiceRoll2 = true;
-	bEnableDiceRoll3 = true;
-
+	diceRollDelegates.Add(FTimerDelegate());
+	diceRollDelegates.Add(FTimerDelegate());
+	diceRollDelegates.Add(FTimerDelegate());
+	
 	startBrush.TintColor = FLinearColor::White;
 	decreasingBrush.TintColor = FLinearColor::Yellow;
 	stopBrush.TintColor = FLinearColor::Black;
@@ -34,14 +59,11 @@ void UDiceRollScreenWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	diceRepeatTimerDelegate1.BindUFunction(this, FName("ChangeDiceImage"), 1);
-	GetWorld()->GetTimerManager().SetTimer(diceRepeatTimerHandle1, diceRepeatTimerDelegate1, changeTime, true);
-
-	diceRepeatTimerDelegate2.BindUFunction(this, FName("ChangeDiceImage"), 2);
-	GetWorld()->GetTimerManager().SetTimer(diceRepeatTimerHandle2, diceRepeatTimerDelegate2, changeTime, true);
-
-	diceRepeatTimerDelegate3.BindUFunction(this, FName("ChangeDiceImage"), 3);
-	GetWorld()->GetTimerManager().SetTimer(diceRepeatTimerHandle3, diceRepeatTimerDelegate3, changeTime, true);
+	for (int i = 0; i < diceRepeats.Num(); ++i)
+	{
+		diceRollDelegates[i].BindUFunction(this, FName("ChangeDiceImage"), i);
+		diceRepeats[i].SetTimer(this, diceRepeats[i].GetDiceRollHandle(), diceRollDelegates[i], diceRepeats[i].GetDiceRollTime());
+	}	
 }
 
 void UDiceRollScreenWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -51,42 +73,33 @@ void UDiceRollScreenWidget::NativeTick(const FGeometry& MyGeometry, float InDelt
 
 void UDiceRollScreenWidget::SetDiceImage(UImage* image, UImage* image2, UImage* image3)
 {
-	diceImage1 = image;
-	diceImage2 = image2;
-	diceImage3 = image3;
+	diceRepeats[0].SetDiceImage(image);
+	diceRepeats[1].SetDiceImage(image2);
+	diceRepeats[2].SetDiceImage(image3);
 }
 
 void UDiceRollScreenWidget::SetBorder(UBorder* val1, UBorder* val2, UBorder* val3)
 {
-	border1 = val1;
-	border2 = val2;
-	border3 = val3;
+	val1->SetBrush(startBrush);
+	val2->SetBrush(startBrush);
+	val3->SetBrush(startBrush);
 
-	border1->SetBrush(startBrush);
-	border2->SetBrush(startBrush);
-	border3->SetBrush(startBrush);
+	diceRepeats[0].SetBorder(val1);
+	diceRepeats[1].SetBorder(val2);
+	diceRepeats[2].SetBorder(val3);
 }
 
 void UDiceRollScreenWidget::ChangeDiceImage(int32 itemNum)
 {
 	//랜덤
 	//https://msdn.microsoft.com/ko-kr/library/windows/desktop/398ax69y.aspx
-	int r;
 
-	if (bEnableDiceRoll1 && itemNum == 1)
+	//배열 길이 넘어가면 체크하는거 넣어놓자
+	
+	if (diceRepeats[itemNum].GetEnableRoll())
 	{
-		r = (double)rand() / (RAND_MAX + 1) * 5;
-		diceImage1->SetBrush(brushes[r]);
-	}
-	if (bEnableDiceRoll2 && itemNum == 2)
-	{
-		r = (double)rand() / (RAND_MAX + 1) * 5;
-		diceImage2->SetBrush(brushes[r]);
-	}
-	if (bEnableDiceRoll3 && itemNum == 3)
-	{
-		r = (double)rand() / (RAND_MAX + 1) * 5;
-		diceImage3->SetBrush(brushes[r]);
+		int r = (double)rand() / (RAND_MAX + 1) * 5;
+		diceRepeats[itemNum].GetDiceImage()->SetBrush(diceBrushes[r]);
 	}
 }
 
@@ -94,7 +107,7 @@ void UDiceRollScreenWidget::GetDiceImageAsync()
 {
 	//https://docs.unrealengine.com/ko-kr/Programming/Assets/AsyncLoading
 
-	// 주사위 이미지 비동기로 얻기
+	// 주사위 이미지 에셋 비동기로 얻기
 	if (!ObjectLibrary)
 	{
 		ObjectLibrary = UObjectLibrary::CreateLibrary(TSubclassOf<class UTexture2D>(), false, GIsEditor);
@@ -118,139 +131,70 @@ void UDiceRollScreenWidget::GetDiceImageAsync()
 			FSlateBrush brush;
 			brush.SetResourceObject(assetDataList[i].GetAsset());
 			brush.ImageSize = FVector2D(128, 128);
-			brushes.Add(brush);
+			diceBrushes.Add(brush);
 		}
 	}
 }
 
-void UDiceRollScreenWidget::SubmitPower(int32 itemNum)
+void UDiceRollScreenWidget::RequestStopDice(int32 itemNum)
 {
-	int* rp;
-	FTimerDelegate* td;
-	FTimerHandle* th;
-
-	switch (itemNum)
-	{
-	case 1:
-		rp = &resultDice1Power;
-		td = &decreasePowerTimerDelegate;
-		th = &decreasePowerTimerHandle;
-		border1->SetBrush(decreasingBrush);
-		break;
-	case 2:
-		rp = &resultDice2Power;
-		td = &decreasePowerTimerDelegate2;
-		th = &decreasePowerTimerHandle2;
-		border2->SetBrush(decreasingBrush);
-		break;
-	case 3:
-		rp = &resultDice3Power;
-		td = &decreasePowerTimerDelegate3;
-		th = &decreasePowerTimerHandle3;
-		border3->SetBrush(decreasingBrush);
-		break;
-	default:
-		//그냥 종료해버린다.
-		//로그는 임시로 넣었으니 적절한 구문으로 변경하자
-		UE_LOG(LogTemp, Warning, TEXT("SubmitPower got wrong power"));
-		return;
-	}
-
-	//버튼 클릭시 주사위 최종 값을 결정한다
-	*rp = (double)rand() / (RAND_MAX + 1) * 5;
-
-	//버튼 클릭시 주사위 변하는 속도를 조금씩 낮춘다
-	//주사위 변하는 속도가 유동적으로 변해야 한다
-	td->BindUFunction(this, FName("DecreaseRollTime"), itemNum);
-	GetWorld()->GetTimerManager().SetTimer(*th, *td, 3, true);
+	
+	diceRepeats[itemNum].GetBorder()->SetBrush(decreasingBrush);
+	//주사위 수는 이미 결정을 해놓는다
+	diceRepeats[itemNum].SetDiceNum((double)rand() / (RAND_MAX + 1) * 5);
+		
+	rollSlowTimerDelegates[itemNum].BindUFunction(this, FName("SlowerRollTime"), itemNum);
+	diceRepeats[itemNum].SetTimer(this, diceRepeats[itemNum].GetRollSlowHandle(), rollSlowTimerDelegates[itemNum], diceRepeats[itemNum].GetRollSlowTime());
 }
 
-void UDiceRollScreenWidget::DecreaseRollTime(int32 itemNum)
+void UDiceRollScreenWidget::SlowerRollTime(int32 itemNum)
 {
-	float* ct;
-	FTimerHandle* th;
-	FTimerHandle* repeatHandle;
-	FTimerDelegate* repeatDel;
+	diceRepeats[itemNum].SetDiceRollTime(diceRepeats[itemNum].GetDiceRollTime() * 2);
+	diceRepeats[itemNum].SetRollSlowTime(diceRepeats[itemNum].GetRollSlowTime() / 2);
 
-
-	switch (itemNum)
+	if (diceRepeats[itemNum].GetDiceRollTime() > 0.5f)
 	{
-	case 1:
-		ct = &changeTime;
-		th = &decreasePowerTimerHandle;
-		repeatHandle = &diceRepeatTimerHandle1;
-		repeatDel = &diceRepeatTimerDelegate1;
-		break;
-	case 2:
-		ct = &changeTime2;
-		th = &decreasePowerTimerHandle2;
-		repeatHandle = &diceRepeatTimerHandle2;
-		repeatDel = &diceRepeatTimerDelegate2;
-		break;
-	case 3:
-		ct = &changeTime3;
-		th = &decreasePowerTimerHandle3;
-		repeatHandle = &diceRepeatTimerHandle3;
-		repeatDel = &diceRepeatTimerDelegate3;
-		break;
-	default:
-		//아무것도 안함
-		return;
-	}
-
-	*ct *= 2;
-	GetWorld()->GetTimerManager().ClearTimer(*repeatHandle);
-
-	if (*ct > 0.5f)
-	{
-		GetWorld()->GetTimerManager().ClearTimer(*th);
+		diceRepeats[itemNum].ClearTimer(this, diceRepeats[itemNum].GetDiceRollHandle());
+		diceRepeats[itemNum].ClearTimer(this, diceRepeats[itemNum].GetRollSlowHandle());
 		StopAndGo(itemNum);
 	}
 	else
 	{
-		GetWorld()->GetTimerManager().SetTimer(*repeatHandle, *repeatDel, *ct, true);
+		diceRepeats[itemNum].SetTimer(this, diceRepeats[itemNum].GetDiceRollHandle(), diceRollDelegates[itemNum], diceRepeats[itemNum].GetDiceRollTime());
+		diceRepeats[itemNum].SetTimer(this, diceRepeats[itemNum].GetRollSlowHandle(), rollSlowTimerDelegates[itemNum], diceRepeats[itemNum].GetRollSlowTime());
 	}
+;
+
 }
 
 void UDiceRollScreenWidget::StopAndGo(int32 itemNum)
 {
-	UImage* dice;
-	int* dicePower;
+	diceRepeats[itemNum].SetEnableRoll(false);
+	diceRepeats[itemNum].GetBorder()->SetBrush(stopBrush);
 
-	switch (itemNum)
+	diceRepeats[itemNum].GetDiceImage()->SetBrush(diceBrushes[diceRepeats[itemNum].GetDiceNum()]);
+
+	bool bResult = true;
+	int32 diceSum = 0;
+
+	for(DiceRepeat item : diceRepeats)
 	{
-	case 1:
-		bEnableDiceRoll1 = false;
-		dicePower = &resultDice1Power;
-		dice = diceImage1;
-		border1->SetBrush(stopBrush);
-		break;
-	case 2:
-		bEnableDiceRoll2 = false;
-		dicePower = &resultDice2Power;
-		dice = diceImage2;
-		border2->SetBrush(stopBrush);
-		break;
-	case 3:
-		bEnableDiceRoll3 = false;
-		dicePower = &resultDice3Power;
-		dice = diceImage3;
-		border3->SetBrush(stopBrush);
-		break;
-	default:
-		//아무것도 안함
-		return;
+		bResult = bResult && !item.GetEnableRoll();
+		diceSum += item.GetDiceNum();
 	}
 
-	//실제 값으로 멈추도록 변경해야 한다
-	dice->SetBrush(brushes[*dicePower]);
-
-	//싱글에서만 동작할 것으로 예상된다. 수정 필요함
-	if (!bEnableDiceRoll1 && !bEnableDiceRoll2 && !bEnableDiceRoll3)
+	if (bResult)
 	{
-		ADDakjiGameModeBase* gamemode = UMyStaticLibrary::GetGameMode(this);
-		ADDakjiPlayerController* pc = (ADDakjiPlayerController*)GWorld->GetFirstPlayerController();
-		gamemode->SetDicePower(resultDice1Power + resultDice2Power + resultDice3Power);
-		pc->ChangeUIByPhase(Phase::Result);
-	}	
+		//결과를 볼 시간을 제공하기 위해 타이머로 딜레이를 만듬
+		screenWaitTimerDelegate.BindUFunction(this, FName("ChangeScreen"), diceSum);
+		GetWorld()->GetTimerManager().SetTimer(screenWaitTimerHandle, screenWaitTimerDelegate, 1, false);
+	}
+}
+
+void UDiceRollScreenWidget::ChangeScreen(int32 diceSum)
+{
+	ADDakjiGameModeBase* gamemode = UMyStaticLibrary::GetGameMode(this);
+	ADDakjiPlayerController* pc = (ADDakjiPlayerController*)GWorld->GetFirstPlayerController();
+	gamemode->SetDicePower(diceSum);
+	pc->ChangeUIByPhase(Phase::Result);
 }

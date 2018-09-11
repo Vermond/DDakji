@@ -28,10 +28,20 @@ public:
 
 	Phase GetCurrentPhase();
 	void SetCurrentPhase(Phase value);
+
+	Playing GetCurrentPlayer();
+	UFUNCTION(BlueprintCallable)
+	void SetCurrentPlayer(Playing value);
+
+	PlayMode GetCurrentPlayMode();
+	UFUNCTION(BlueprintCallable)
+	void SetCurrentPlayMode(PlayMode value);
 #pragma endregion
 	
 private:
 	Phase currentPhase;
+	Playing currentPlayer;
+	PlayMode currentPlayMode;
 
 	int32 dicePower = 0;
 	float clickDistance = 0;

@@ -8,7 +8,49 @@
 #include "Image.h"
 #include "Engine/ObjectLibrary.h"
 #include "Border.h"
+#include "TimerManager.h"
 #include "DiceRollScreenWidget.generated.h"
+
+//개별 주사위 타이머를 위한 클래스
+class DiceRepeat
+{
+public:
+	DiceRepeat();
+	DiceRepeat(float diceRoll, float rollSlow, bool bEnableRoll);
+
+	void SetTimer(const UObject* object, FTimerHandle& timerHandle, FTimerDelegate& timerDelegate, float changeTime);
+	void ClearTimer(const UObject* object, FTimerHandle& timerHandle);
+
+public:
+	float GetDiceRollTime() { return diceRollTime; }
+	float GetRollSlowTime() { return rollSlowTime; }
+	FTimerHandle& GetDiceRollHandle() { return diceRollHandle; }
+	FTimerHandle& GetRollSlowHandle() { return rollSlowHandle; }
+	UImage* GetDiceImage() { return diceImage; }
+	UBorder* GetBorder() { return border; }
+	bool GetEnableRoll() { return bEnableDiceRoll; }
+	int GetDiceNum() { return resultDiceNum; }
+
+	void SetDiceRollTime(float value) { diceRollTime = value; }
+	void SetRollSlowTime(float value) { rollSlowTime = value; }
+	void SetDiceImage(UImage* value) { diceImage = value; }
+	void SetBorder(UBorder* value) { border = value; }
+	void SetEnableRoll(bool value) { bEnableDiceRoll = value; }
+	void SetDiceNum(int value) { resultDiceNum = value; }
+private:
+	float diceRollTime;
+	float rollSlowTime;
+
+	FTimerHandle diceRollHandle;
+	FTimerHandle rollSlowHandle;
+
+	UImage* diceImage;
+	UBorder* border;
+
+	bool bEnableDiceRoll;
+	int resultDiceNum;
+};
+
 
 /**
  *
@@ -25,68 +67,39 @@ public:
 protected:
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
+	//주사위 개수를 늘릴 경우에는 함수 인자를 배열로 변경하자
 	UFUNCTION(BlueprintCallable, Category = "Widget")
 		void SetDiceImage(UImage* image, UImage* image2, UImage* image3);
 	UFUNCTION(BlueprintCallable, Category = "Widget")
 		void SetBorder(UBorder* val1, UBorder* val2, UBorder* val3);
 
 	UFUNCTION(BlueprintCallable, Category = "Widget")
+		void RequestStopDice(int32 itemNum);
+	UFUNCTION()
 		void ChangeDiceImage(int32 itemNum);
-	UFUNCTION(BlueprintCallable, Category = "Widget")
-		void SubmitPower(int32 itemNum);
-
+	UFUNCTION()
+		void ChangeScreen(int32 diceSum);
 private:
 	UFUNCTION()
-		void DecreaseRollTime(int32 itemNum);
+		void SlowerRollTime(int32 itemNum);
 
 	void GetDiceImageAsync();
 	void StopAndGo(int32 itemNum);
 
-protected:
-	UImage* diceImage1;
-	UImage* diceImage2;
-	UImage* diceImage3;
-
-	UBorder* border1;
-	UBorder* border2;
-	UBorder* border3;
-
 private:
-	float totalTime;
-	TArray<FSlateBrush> brushes;
+	TArray<FSlateBrush> diceBrushes;
 
 	UObjectLibrary* ObjectLibrary = nullptr;
 	bool bFullyLoad = false;
 
-#pragma region vars collection for repeat
-
 	FSlateBrush startBrush;
 	FSlateBrush decreasingBrush;
 	FSlateBrush stopBrush;
+	   
+	TArray<FTimerDelegate> rollSlowTimerDelegates;
+	TArray<FTimerDelegate> diceRollDelegates;
+	TArray<DiceRepeat> diceRepeats;
 
-	float changeTime;
-	float changeTime2;
-	float changeTime3;
-
-	FTimerHandle decreasePowerTimerHandle;
-	FTimerHandle decreasePowerTimerHandle2;
-	FTimerHandle decreasePowerTimerHandle3;
-	FTimerDelegate decreasePowerTimerDelegate;
-	FTimerDelegate decreasePowerTimerDelegate2;
-	FTimerDelegate decreasePowerTimerDelegate3;
-
-	FTimerHandle diceRepeatTimerHandle1;
-	FTimerHandle diceRepeatTimerHandle2;
-	FTimerHandle diceRepeatTimerHandle3;
-	FTimerDelegate diceRepeatTimerDelegate1;
-	FTimerDelegate diceRepeatTimerDelegate2;
-	FTimerDelegate diceRepeatTimerDelegate3;
-
-	bool bEnableDiceRoll1 = true;
-	bool bEnableDiceRoll2 = true;
-	bool bEnableDiceRoll3 = true;
-	int resultDice1Power;
-	int resultDice2Power;
-	int resultDice3Power;
-#pragma endregion
+	FTimerDelegate screenWaitTimerDelegate;
+	FTimerHandle screenWaitTimerHandle;
 };

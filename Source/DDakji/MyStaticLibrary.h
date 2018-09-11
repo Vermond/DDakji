@@ -62,11 +62,11 @@ public:
 
 	static FORCEINLINE ADDakjiGameModeBase* GetGameMode(const UObject* object)
 	{
-		return (ADDakjiGameModeBase*)GEngine->GetWorldFromContextObject(object)->GetAuthGameMode();
+		return (ADDakjiGameModeBase*)GEngine->GetWorldFromContextObjectChecked(object)->GetAuthGameMode();
 	}
 
 	static FORCEINLINE ADDakjiPlayerController* GetPlayerController(const UObject* object)
 	{
-		return (ADDakjiPlayerController*)GEngine->GetWorldFromContextObject(object)->GetFirstPlayerController();
+		return (ADDakjiPlayerController*)GEngine->GetWorldFromContextObjectChecked(object)->GetFirstPlayerController();
 	}
 };
