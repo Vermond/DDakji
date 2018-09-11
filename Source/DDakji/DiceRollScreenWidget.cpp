@@ -19,7 +19,6 @@ DiceRepeat::DiceRepeat(float diceRoll, float rollSlow, bool bEnableRoll = true)
 {
 }
 
-
 void DiceRepeat::SetTimer(const UObject* object, FTimerHandle& timerHandle, FTimerDelegate& timerDelegate, float changeTime)
 {
 	GEngine->GetWorldFromContextObjectChecked(object)->GetTimerManager().SetTimer(timerHandle, timerDelegate, changeTime, true);
@@ -137,8 +136,7 @@ void UDiceRollScreenWidget::GetDiceImageAsync()
 }
 
 void UDiceRollScreenWidget::RequestStopDice(int32 itemNum)
-{
-	
+{	
 	diceRepeats[itemNum].GetBorder()->SetBrush(decreasingBrush);
 	//주사위 수는 이미 결정을 해놓는다
 	diceRepeats[itemNum].SetDiceNum((double)rand() / (RAND_MAX + 1) * 5);
@@ -163,15 +161,12 @@ void UDiceRollScreenWidget::SlowerRollTime(int32 itemNum)
 		diceRepeats[itemNum].SetTimer(this, diceRepeats[itemNum].GetDiceRollHandle(), diceRollDelegates[itemNum], diceRepeats[itemNum].GetDiceRollTime());
 		diceRepeats[itemNum].SetTimer(this, diceRepeats[itemNum].GetRollSlowHandle(), rollSlowTimerDelegates[itemNum], diceRepeats[itemNum].GetRollSlowTime());
 	}
-;
-
 }
 
 void UDiceRollScreenWidget::StopAndGo(int32 itemNum)
 {
 	diceRepeats[itemNum].SetEnableRoll(false);
 	diceRepeats[itemNum].GetBorder()->SetBrush(stopBrush);
-
 	diceRepeats[itemNum].GetDiceImage()->SetBrush(diceBrushes[diceRepeats[itemNum].GetDiceNum()]);
 
 	bool bResult = true;
