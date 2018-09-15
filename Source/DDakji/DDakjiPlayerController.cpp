@@ -2,7 +2,7 @@
 
 #include "DDakjiPlayerController.h"
 
-#include "DDakjiGameModeBase.h"
+#include "DDakjiGameMode.h"
 #include "MyStaticLibrary.h"
 
 #include "UserWidget.h"
@@ -41,7 +41,7 @@ void ADDakjiPlayerController::ChangeUIByPhase(Phase phase)
 {
 	//페이즈 변경 처리를 임시로 이 함수에서 수행한다
 	//적절한 위치 결정하면 꼭 옮기자
-	ADDakjiGameModeBase* gameMode = UMyStaticLibrary::GetGameMode(this);
+	ADDakjiGameMode* gameMode = UMyStaticLibrary::GetGameMode(this);
 	gameMode->SetCurrentPhase(phase);
 	
 	switch (phase)

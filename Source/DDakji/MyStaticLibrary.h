@@ -3,7 +3,7 @@
 #include "GameFramework/Actor.h"
 #include "CollisionQueryParams.h"
 #include "Engine/World.h"
-#include "DDakjiGameModeBase.h"
+#include "DDakjiGameMode.h"
 #include "DDakjiPlayerController.h"
 #include "MyStaticLibrary.generated.h"
 
@@ -60,9 +60,9 @@ public:
 		return (HitOut.GetActor() != NULL);
 	}
 
-	static FORCEINLINE ADDakjiGameModeBase* GetGameMode(const UObject* object)
+	static FORCEINLINE ADDakjiGameMode* GetGameMode(const UObject* object)
 	{
-		return (ADDakjiGameModeBase*)GEngine->GetWorldFromContextObjectChecked(object)->GetAuthGameMode();
+		return (ADDakjiGameMode*)GEngine->GetWorldFromContextObjectChecked(object)->GetAuthGameMode();
 	}
 
 	static FORCEINLINE ADDakjiPlayerController* GetPlayerController(const UObject* object)

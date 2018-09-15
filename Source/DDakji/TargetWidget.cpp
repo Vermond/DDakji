@@ -8,7 +8,7 @@ void UTargetWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
-	tickTime -= InDeltaTime;
+	//tickTime -= InDeltaTime;
 
 	if (tickTime < 0)
 	{
@@ -28,7 +28,7 @@ void UTargetWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 
 void UTargetWidget::GetWorldPosViaMouse()
 {
-	ADDakjiGameModeBase* gamemode = UMyStaticLibrary::GetGameMode(this);
+	ADDakjiGameMode* gamemode = UMyStaticLibrary::GetGameMode(this);
 	ADDakjiPlayerController* controller = UMyStaticLibrary::GetPlayerController(this);
 
 	if (gamemode->GetCurrentPhase() == Phase::Target)

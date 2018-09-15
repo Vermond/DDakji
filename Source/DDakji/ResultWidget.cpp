@@ -6,7 +6,7 @@
 
 float UResultWidget::GetPowerResult()
 {
-	ADDakjiGameModeBase* gamemode = UMyStaticLibrary::GetGameMode(this);
+	ADDakjiGameMode* gamemode = UMyStaticLibrary::GetGameMode(this);
 	
 	float guardPoint = gamemode->GetGuardPoint();
 	float distance = gamemode->GetClickDistance();

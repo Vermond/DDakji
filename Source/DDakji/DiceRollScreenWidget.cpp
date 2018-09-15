@@ -3,7 +3,7 @@
 #include "DiceRollScreenWidget.h"
 
 #include "DDakjiPlayerController.h"
-#include "DDakjiGameModeBase.h"
+#include "DDakjiGameMode.h"
 #include "MyStaticLibrary.h"
 #include "Engine/Texture2D.h"
 
@@ -188,7 +188,7 @@ void UDiceRollScreenWidget::StopAndGo(int32 itemNum)
 
 void UDiceRollScreenWidget::ChangeScreen(int32 diceSum)
 {
-	ADDakjiGameModeBase* gamemode = UMyStaticLibrary::GetGameMode(this);
+	ADDakjiGameMode* gamemode = UMyStaticLibrary::GetGameMode(this);
 	ADDakjiPlayerController* pc = (ADDakjiPlayerController*)GWorld->GetFirstPlayerController();
 	gamemode->SetDicePower(diceSum);
 	pc->ChangeUIByPhase(Phase::Result);
