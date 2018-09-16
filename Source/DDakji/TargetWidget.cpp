@@ -4,16 +4,45 @@
 #include "MyStaticLibrary.h"
 #include "DDakjiPlayerController.h"
 
+void UTargetWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	ADDakjiPlayerController* controller = UMyStaticLibrary::GetPlayerController(this);
+	prevMousePos = controller->GetMousePos();
+
+	UE_LOG(LogTemp, Warning, TEXT("NativeConstruct"));
+}
+
 void UTargetWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
-	//tickTime -= InDeltaTime;
+	tickTime -= InDeltaTime;
 
 	if (tickTime < 0)
 	{
 		tickTime = nextAnnoyTime;
 		
+		float x = rand() % 20 - 10;
+		float y = rand() % 20 - 10;
+
+		ADDakjiPlayerController* controller = UMyStaticLibrary::GetPlayerController(this);
+		
+		FVector2D mousePos;
+		//if (!controller->GetMousePosition(mousePos.X, mousePos.Y)) return;
+		mousePos = controller->GetMousePos(); //실제 화면의 마우스 위치, 게임 화면 크게랑 상관없음
+
+		UE_LOG(LogTemp, Warning, TEXT("%s %s"), *prevMousePos.ToString(), *mousePos.ToString());
+
+		x += mousePos.X - prevMousePos.X;
+		y += mousePos.Y - prevMousePos.Y;
+
+		prevMousePos = mousePos;
+
+		MoveTarget(x, y);
+
+		/*
 		ADDakjiPlayerController* controller = UMyStaticLibrary::GetPlayerController(this);
 
 		FVector2D pos = FVector2D();
@@ -23,7 +52,29 @@ void UTargetWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		pos.Y += rand() % 20 - 10;
 
 		controller->SetMouseLocation((int)(pos.X), (int)(pos.Y));
+		*/
 	}
+}
+
+void UTargetWidget::MoveTarget(float posX, float posY)
+{
+	FVector2D pos = targetWidget->RenderTransform.Translation;
+	pos.X += posX;
+	pos.Y += posY;	
+
+	const float Max_Width = 1920;
+	const float Min_Width = 0;
+	const float Max_Height = 1080;
+	const float Min_Height = 0;
+
+	if (pos.X > Max_Width) pos.X = Max_Width;
+	if (pos.X < Min_Width) pos.X = Min_Width;
+	if (pos.Y > Max_Height) pos.Y = Max_Height;
+	if (pos.Y < Min_Height) pos.Y = Min_Height;
+
+	//UE_LOG(LogTemp, Warning, TEXT("%s %s"), *targetWidget->RenderTransform.Translation.ToString(), *pos.ToString());
+
+	targetWidget->SetRenderTranslation(pos);
 }
 
 void UTargetWidget::GetWorldPosViaMouse()

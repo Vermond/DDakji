@@ -113,6 +113,7 @@ void ADDakjiPlayerController::SetUIDelayed(TSubclassOf<class UUserWidget> target
 }
 
 //이 함수 사용하는지 확인하고 지워도 되면 지우기
+//쓸거면 GetMousePosition에 맞춰서 bool 반환시키고 FVector2D 인자로 넣기
 FVector2D ADDakjiPlayerController::GetMousePos()
 {
 	FVector2D pos = FVector2D();

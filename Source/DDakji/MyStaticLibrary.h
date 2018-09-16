@@ -68,5 +68,5 @@ public:
 	static FORCEINLINE ADDakjiPlayerController* GetPlayerController(const UObject* object)
 	{
 		return (ADDakjiPlayerController*)GEngine->GetWorldFromContextObjectChecked(object)->GetFirstPlayerController();
-	}
+	}	
 };
