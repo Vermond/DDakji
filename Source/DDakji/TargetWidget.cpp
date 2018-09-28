@@ -3,6 +3,11 @@
 #include "TargetWidget.h"
 #include "MyStaticLibrary.h"
 #include "DDakjiPlayerController.h"
+#include "PanelSlot.h"
+#include "CanvasPanelSlot.h"
+#include "PanelWidget.h"
+#include "CanvasPanel.h"
+#include "Engine/Engine.h"
 
 void UTargetWidget::NativeConstruct()
 {
@@ -11,7 +16,7 @@ void UTargetWidget::NativeConstruct()
 	ADDakjiPlayerController* controller = UMyStaticLibrary::GetPlayerController(this);
 	prevMousePos = controller->GetMousePos();
 
-	UE_LOG(LogTemp, Warning, TEXT("NativeConstruct"));
+	SetMousePosToTarget();
 }
 
 void UTargetWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -24,16 +29,16 @@ void UTargetWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	{
 		tickTime = nextAnnoyTime;
 		
-		float x = rand() % 20 - 10;
-		float y = rand() % 20 - 10;
+		//임시로 진동기능 빼놓음
+		float x = 0;// rand() % 20 - 10;
+		float y = 0;// rand() % 20 - 10;
 
 		ADDakjiPlayerController* controller = UMyStaticLibrary::GetPlayerController(this);
 		
 		FVector2D mousePos;
-		//if (!controller->GetMousePosition(mousePos.X, mousePos.Y)) return;
+		//마우스 이동과 위젯 이동이 동기화되지 않음
+		//이동 단위 또는 비율 문제같음. 변환 필요한듯
 		mousePos = controller->GetMousePos(); //실제 화면의 마우스 위치, 게임 화면 크게랑 상관없음
-
-		UE_LOG(LogTemp, Warning, TEXT("%s %s"), *prevMousePos.ToString(), *mousePos.ToString());
 
 		x += mousePos.X - prevMousePos.X;
 		y += mousePos.Y - prevMousePos.Y;
@@ -41,38 +46,54 @@ void UTargetWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		prevMousePos = mousePos;
 
 		MoveTarget(x, y);
-
-		/*
-		ADDakjiPlayerController* controller = UMyStaticLibrary::GetPlayerController(this);
-
-		FVector2D pos = FVector2D();
-		controller->GetMousePosition(pos.X, pos.Y);
-
-		pos.X += rand() % 20 - 10;
-		pos.Y += rand() % 20 - 10;
-
-		controller->SetMouseLocation((int)(pos.X), (int)(pos.Y));
-		*/
 	}
+}
+
+void UTargetWidget::SetMousePosToTarget()
+{
+	
+	ADDakjiPlayerController* controller = UMyStaticLibrary::GetPlayerController(this);
+
+	//UCanvasPanelSlot* slot = (UCanvasPanelSlot*)targetWidget->Slot;
+	//해당 아이템의 몇몇 정보를 얻기 위해 슬롯으로 변환
+	//slot->GetSize()
+	//umg 기준에서의 해당 아이템 크기
+	//targetWidget->RenderTransform.Translation
+	//umg 기준에서의 초기 위치
+	//GEngine->GameViewport->Viewport->GetSizeXY()
+	//현재 뷰포트 크기
+	//targetWidget->RenderTransformPivot
+	//피봇 위치
+	//slot->GetAnchors()
+	//앵커; 퍼센트로 출력된다
+
+	UCanvasPanelSlot* slot = (UCanvasPanelSlot*)targetWidget->Slot;
+
+	const FVector2D &viewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
+	const FVector2D &size = slot->GetSize();
+	const FVector2D &pos = slot->GetPosition();
+	const FAnchors &anchor = slot->GetAnchors();
+	const FVector2D &pivot = targetWidget->RenderTransformPivot;
+
+	int x, y;
+
+	if (slot != nullptr)
+	{
+		//무조건 아이템 중간에 마우스가 오도록 하자
+		//앵커가 영역이 아닌 포인트라고 가정한다 (이 경우 Maximum = minimum)
+		//식 미완성
+		x = viewportSize.X * anchor.Maximum.X + pos.X + size.X / 2;// *((pivot.X * -1) + 0.5);
+		y = viewportSize.Y * anchor.Maximum.Y + pos.Y + size.Y / 2;// *((pivot.Y * -1) + 0.5);
+	}
+
+	controller->SetMouseLocation(x, y);
 }
 
 void UTargetWidget::MoveTarget(float posX, float posY)
 {
 	FVector2D pos = targetWidget->RenderTransform.Translation;
 	pos.X += posX;
-	pos.Y += posY;	
-
-	const float Max_Width = 1920;
-	const float Min_Width = 0;
-	const float Max_Height = 1080;
-	const float Min_Height = 0;
-
-	if (pos.X > Max_Width) pos.X = Max_Width;
-	if (pos.X < Min_Width) pos.X = Min_Width;
-	if (pos.Y > Max_Height) pos.Y = Max_Height;
-	if (pos.Y < Min_Height) pos.Y = Min_Height;
-
-	//UE_LOG(LogTemp, Warning, TEXT("%s %s"), *targetWidget->RenderTransform.Translation.ToString(), *pos.ToString());
+	pos.Y += posY;
 
 	targetWidget->SetRenderTranslation(pos);
 }

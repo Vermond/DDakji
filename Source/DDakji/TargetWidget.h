@@ -22,8 +22,10 @@ protected:
 public:
 	UFUNCTION(BlueprintCallable)
 	void GetWorldPosViaMouse();
-
+	
+	void SetMousePosToTarget();
 	void MoveTarget(float posX, float posY);
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 		class UTextBlock* targetWidget;
