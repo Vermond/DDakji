@@ -7,6 +7,8 @@
 #include "Common.h"
 #include "DDakjiGameMode.generated.h"
 
+DECLARE_DELEGATE_OneParam(FTestDelegate, Phase);
+
 UCLASS()
 class DDAKJI_API ADDakjiGameMode : public AGameMode
 {
@@ -14,6 +16,9 @@ class DDAKJI_API ADDakjiGameMode : public AGameMode
 	
 public:
 	ADDakjiGameMode();
+
+	virtual void PostInitializeComponents() override;
+	virtual void BeginPlay() override;
 
 #pragma region Get/Set functions
 public:
@@ -37,7 +42,31 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetCurrentPlayMode(PlayMode value);
 #pragma endregion
-	
+
+public:
+	UFUNCTION(BlueprintCallable)
+	void ChangeUIByPhase(Phase phase);
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+		TSubclassOf<class UUserWidget> mainUIWidget;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+		TSubclassOf<class UUserWidget> selectUIWidget;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+		TSubclassOf<class UUserWidget> startUIWidget;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+		TSubclassOf<class UUserWidget> targetUIWidget;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+		TSubclassOf<class UUserWidget> powerUIWidget;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+		TSubclassOf<class UUserWidget> resultUIWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+		TSubclassOf<class UTargetWidget> testTargetUIWidget;
+
+
+	FTestDelegate testDelegate;
+
 private:
 	Phase currentPhase;
 	Playing currentPlayer;

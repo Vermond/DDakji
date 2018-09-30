@@ -16,8 +16,16 @@ class DDAKJI_API AComAIController : public AAIController
 	
 	
 public:
+	AComAIController();
+
 	void StartGame();
 	
 	void SimulateClick();
 	void SimulateDiceRoll();
+
+private:
+	int finalX;
+	int finalY;
+	int currentX;
+	int currentY;
 };

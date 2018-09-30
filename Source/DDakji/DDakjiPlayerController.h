@@ -8,9 +8,6 @@
 #include "GameFramework/PlayerController.h"
 #include "DDakjiPlayerController.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class DDAKJI_API ADDakjiPlayerController : public APlayerController
 {
@@ -19,14 +16,17 @@ class DDAKJI_API ADDakjiPlayerController : public APlayerController
 public:	
 	ADDakjiPlayerController();
 
+	virtual void PostInitializeComponents() override;
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION(BlueprintCallable)
-	void ChangeUIByPhase(Phase phase);
+	//UFUNCTION(BlueprintCallable)
+	//void ChangeUIByPhase(Phase phase);
 	
 	UFUNCTION(BlueprintCallable)
 		FVector2D GetMousePos();
+
+	void TestReceive(Phase phase);
 
 protected:
 	void SetupInputComponent() override;
@@ -36,22 +36,16 @@ private:
 	void SetUI(TSubclassOf<class UUserWidget> targetWidget, bool showCursor = true);
 	void SetUIDelayed(TSubclassOf<class UUserWidget> targetWidget, bool showCursor = true);
 
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
-		TSubclassOf<class UUserWidget> mainUIWidget;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
-		TSubclassOf<class UUserWidget> selectUIWidget;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
-		TSubclassOf<class UUserWidget> startUIWidget;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
-		TSubclassOf<class UUserWidget> targetUIWidget;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
-		TSubclassOf<class UUserWidget> powerUIWidget;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
-		TSubclassOf<class UUserWidget> resultUIWidget;
 
 
 private:	
 	UUserWidget* currentUI;
 	ACameraDirector* cameraDirector;
+
+	TSubclassOf<class UUserWidget> mainUIWidget;
+	TSubclassOf<class UUserWidget> selectUIWidget;
+	TSubclassOf<class UUserWidget> startUIWidget;
+	TSubclassOf<class UUserWidget> targetUIWidget;
+	TSubclassOf<class UUserWidget> powerUIWidget;
+	TSubclassOf<class UUserWidget> resultUIWidget;
 };

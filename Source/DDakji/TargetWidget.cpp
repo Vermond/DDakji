@@ -84,9 +84,9 @@ void UTargetWidget::SetMousePosToTarget()
 		//식 미완성
 		x = viewportSize.X * anchor.Maximum.X + pos.X + size.X / 2;// *((pivot.X * -1) + 0.5);
 		y = viewportSize.Y * anchor.Maximum.Y + pos.Y + size.Y / 2;// *((pivot.Y * -1) + 0.5);
-	}
 
-	controller->SetMouseLocation(x, y);
+		controller->SetMouseLocation(x, y);
+	}
 }
 
 void UTargetWidget::MoveTarget(float posX, float posY)
@@ -132,6 +132,6 @@ void UTargetWidget::GetWorldPosViaMouse()
 			gamemode->SetGuardPoint(sqrtf(powf(boxExtend.X * 0.15, 2) + pow(boxExtend.Y * 0.15, 2)));
 		}
 
-		controller->ChangeUIByPhase(Phase::Powering);
+		gamemode->ChangeUIByPhase(Phase::Powering);
 	}
 }

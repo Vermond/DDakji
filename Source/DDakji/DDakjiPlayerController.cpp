@@ -18,6 +18,24 @@ ADDakjiPlayerController::ADDakjiPlayerController()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
+void ADDakjiPlayerController::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	//변수 이동으로 인한 임시조치
+	ADDakjiGameMode* gameMode = UMyStaticLibrary::GetGameMode(this);
+	mainUIWidget = gameMode->mainUIWidget;
+	selectUIWidget = gameMode->selectUIWidget;
+	startUIWidget = gameMode->startUIWidget;
+	targetUIWidget = gameMode->targetUIWidget;
+	powerUIWidget = gameMode->powerUIWidget;
+	resultUIWidget = gameMode->resultUIWidget;
+
+	//SetUI(mainUIWidget);
+
+	gameMode->testDelegate.BindUObject(this, &ADDakjiPlayerController::TestReceive);
+}
+
 void ADDakjiPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -28,8 +46,6 @@ void ADDakjiPlayerController::BeginPlay()
 		cameraDirector = *ActorItr;
 		break;
 	}
-
-	SetUI(mainUIWidget);
 }
 
 void ADDakjiPlayerController::Tick(float DeltaTime)
@@ -37,6 +53,46 @@ void ADDakjiPlayerController::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void ADDakjiPlayerController::TestReceive(Phase phase)
+{
+	UE_LOG(LogTemp, Warning, TEXT("ADDakjiPlayerController TestReceive"));
+
+	switch (phase)
+	{
+	case Main:
+		SetUI(mainUIWidget);
+		break;
+	case Select:
+		SetUI(selectUIWidget);
+		break;
+	case Start:
+		//카메라 원위치
+		cameraDirector->ChangeCamera(1);
+
+		SetUI(startUIWidget);
+		break;
+	case Target:
+		//딱지치기를 위한 상단으로 카메라 이동
+		cameraDirector->ChangeCamera(2);
+
+		SetUIDelayed(targetUIWidget);
+		break;
+	case Powering:
+		cameraDirector->ChangeCamera(3);
+
+		SetUIDelayed(powerUIWidget);
+		break;
+	case Result:
+		cameraDirector->ChangeCamera(4);
+
+		SetUIDelayed(resultUIWidget);
+		break;
+	default:
+		break;
+	}
+}
+
+/*
 void ADDakjiPlayerController::ChangeUIByPhase(Phase phase)
 {
 	//페이즈 변경 처리를 임시로 이 함수에서 수행한다
@@ -77,7 +133,7 @@ void ADDakjiPlayerController::ChangeUIByPhase(Phase phase)
 	default:
 		break;
 	}
-}
+}*/
 
 void ADDakjiPlayerController::SetUI(TSubclassOf<class UUserWidget> targetWidget, bool showCursor)
 {

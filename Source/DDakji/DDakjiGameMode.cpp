@@ -1,9 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "DDakjiGameMode.h"
+#include "DDakjiPlayerController.h"
 
 ADDakjiGameMode::ADDakjiGameMode()
 {
+
 	currentPhase = Phase::Start;
 	currentPlayer = Playing::Myself;
 	currentPlayMode = PlayMode::Practice;
@@ -18,6 +20,17 @@ ADDakjiGameMode::ADDakjiGameMode()
 	bSecondPlayerSuccess = false;
 }
 
+void ADDakjiGameMode::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+}
+
+void ADDakjiGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	ChangeUIByPhase(Phase::Main);
+}
 
 #pragma region Get/Set functions
 
@@ -39,3 +52,11 @@ void ADDakjiGameMode::SetCurrentPlayer(Playing value) { currentPlayer = value; }
 PlayMode ADDakjiGameMode::GetCurrentPlayMode() { return currentPlayMode; }
 void ADDakjiGameMode::SetCurrentPlayMode(PlayMode value) { currentPlayMode = value; }
 #pragma endregion
+
+void ADDakjiGameMode::ChangeUIByPhase(Phase phase)
+{
+	SetCurrentPhase(phase);
+
+	//상태 변경 알림
+	testDelegate.ExecuteIfBound(phase);
+}
