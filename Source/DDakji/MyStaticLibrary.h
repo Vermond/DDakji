@@ -63,6 +63,7 @@ public:
 	static FORCEINLINE ADDakjiGameMode* GetGameMode(const UObject* object)
 	{
 		return (ADDakjiGameMode*)GEngine->GetWorldFromContextObjectChecked(object)->GetAuthGameMode();
+		//ASimpleNetworkTestGameMode* gameMode = (ASimpleNetworkTestGameMode*)GetWorld()->GetAuthGameMode();
 	}
 
 	static FORCEINLINE ADDakjiPlayerController* GetPlayerController(const UObject* object)

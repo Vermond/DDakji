@@ -23,6 +23,38 @@ void AComAIController::StartGame()
 	UE_LOG(LogTemp, Warning, TEXT("AComAIController StartGame"));
 }
 
+void AComAIController::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	UE_LOG(LogTemp, Warning, TEXT("AComAIController PostInitializeComponents"));
+
+	ADDakjiGameMode* gameMode = UMyStaticLibrary::GetGameMode(this);
+	gameMode->PhaseChangeDelegate.BindUObject(this, &AComAIController::PhaseChanged);
+	//gameMode->ChangePlayerDelegate.BindUObject(this, &ADDakjiPlayerController::SetInputByPlayer);
+}
+
+void AComAIController::PhaseChanged(Phase phase)
+{
+	switch (phase)
+	{
+	case Main:
+		break;
+	case Select:
+		break;
+	case Start:
+		break;
+	case Target:
+		break;
+	case Powering:
+		break;
+	case Result:
+		break;
+	default:
+		break;
+	}
+}
+
 void AComAIController::SimulateClick()
 {
 	//랜덤 지점을 구한다

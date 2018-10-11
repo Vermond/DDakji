@@ -7,7 +7,7 @@ ADDakjiGameMode::ADDakjiGameMode()
 {
 
 	currentPhase = Phase::Start;
-	currentPlayer = Playing::Myself;
+	currentPlayer = Playing::Player1;
 	currentPlayMode = PlayMode::Practice;
 
 	dicePower = 0;
@@ -30,6 +30,7 @@ void ADDakjiGameMode::BeginPlay()
 	Super::BeginPlay();
 
 	ChangeUIByPhase(Phase::Main);
+	SetCurrentPlayer(Playing::Computer);
 }
 
 #pragma region Get/Set functions
@@ -47,7 +48,13 @@ Phase ADDakjiGameMode::GetCurrentPhase() { return currentPhase; }
 void ADDakjiGameMode::SetCurrentPhase(Phase value) { currentPhase = value; }
 
 Playing ADDakjiGameMode::GetCurrentPlayer() { return currentPlayer; }
-void ADDakjiGameMode::SetCurrentPlayer(Playing value) { currentPlayer = value; }
+void ADDakjiGameMode::SetCurrentPlayer(Playing value)
+{
+	currentPlayer = value;
+
+	//상태 변경 알림
+	ChangePlayerDelegate.ExecuteIfBound(value);
+}
 
 PlayMode ADDakjiGameMode::GetCurrentPlayMode() { return currentPlayMode; }
 void ADDakjiGameMode::SetCurrentPlayMode(PlayMode value) { currentPlayMode = value; }
@@ -58,5 +65,5 @@ void ADDakjiGameMode::ChangeUIByPhase(Phase phase)
 	SetCurrentPhase(phase);
 
 	//상태 변경 알림
-	testDelegate.ExecuteIfBound(phase);
+	PhaseChangeDelegate.ExecuteIfBound(phase);
 }

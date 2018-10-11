@@ -27,6 +27,7 @@ public:
 		FVector2D GetMousePos();
 
 	void TestReceive(Phase phase);
+	void SetInputByPlayer(Playing player);
 
 protected:
 	void SetupInputComponent() override;

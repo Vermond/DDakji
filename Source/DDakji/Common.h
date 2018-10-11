@@ -19,8 +19,8 @@ enum Phase
 UENUM(BlueprintType)
 enum Playing
 {
-	Myself,
-	Other,
+	Player1,
+	Player2,
 	Computer
 };
 
