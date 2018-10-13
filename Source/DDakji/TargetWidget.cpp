@@ -132,6 +132,6 @@ void UTargetWidget::GetWorldPosViaMouse()
 			gamemode->SetGuardPoint(sqrtf(powf(boxExtend.X * 0.15, 2) + pow(boxExtend.Y * 0.15, 2)));
 		}
 
-		gamemode->ChangeUIByPhase(Phase::Powering);
+		gamemode->ChangePhase(Phase::Powering);
 	}
 }

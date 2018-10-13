@@ -26,27 +26,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 		FVector2D GetMousePos();
 
-	void TestReceive(Phase phase);
+	void ChangeCamera(Phase phase);
 	void SetInputByPlayer(Playing player);
 
 protected:
 	void SetupInputComponent() override;
 
 private:
-	UFUNCTION()
-	void SetUI(TSubclassOf<class UUserWidget> targetWidget, bool showCursor = true);
-	void SetUIDelayed(TSubclassOf<class UUserWidget> targetWidget, bool showCursor = true);
-
-
-
-private:	
-	UUserWidget* currentUI;
 	ACameraDirector* cameraDirector;
-
-	TSubclassOf<class UUserWidget> mainUIWidget;
-	TSubclassOf<class UUserWidget> selectUIWidget;
-	TSubclassOf<class UUserWidget> startUIWidget;
-	TSubclassOf<class UUserWidget> targetUIWidget;
-	TSubclassOf<class UUserWidget> powerUIWidget;
-	TSubclassOf<class UUserWidget> resultUIWidget;
 };

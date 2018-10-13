@@ -29,7 +29,7 @@ void ADDakjiGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ChangeUIByPhase(Phase::Main);
+	ChangePhase(Phase::Main);
 	SetCurrentPlayer(Playing::Computer);
 }
 
@@ -60,10 +60,13 @@ PlayMode ADDakjiGameMode::GetCurrentPlayMode() { return currentPlayMode; }
 void ADDakjiGameMode::SetCurrentPlayMode(PlayMode value) { currentPlayMode = value; }
 #pragma endregion
 
-void ADDakjiGameMode::ChangeUIByPhase(Phase phase)
+void ADDakjiGameMode::ChangePhase(Phase phase)
 {
 	SetCurrentPhase(phase);
 
 	//상태 변경 알림
-	PhaseChangeDelegate.ExecuteIfBound(phase);
+	if (PhaseChangeDelegate.IsBound())
+	{
+		PhaseChangeDelegate.Broadcast(phase);
+	}
 }

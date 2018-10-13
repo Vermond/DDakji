@@ -30,7 +30,7 @@ void AComAIController::PostInitializeComponents()
 	UE_LOG(LogTemp, Warning, TEXT("AComAIController PostInitializeComponents"));
 
 	ADDakjiGameMode* gameMode = UMyStaticLibrary::GetGameMode(this);
-	gameMode->PhaseChangeDelegate.BindUObject(this, &AComAIController::PhaseChanged);
+	gameMode->PhaseChangeDelegate.AddUObject(this, &AComAIController::PhaseChanged);
 	//gameMode->ChangePlayerDelegate.BindUObject(this, &ADDakjiPlayerController::SetInputByPlayer);
 }
 

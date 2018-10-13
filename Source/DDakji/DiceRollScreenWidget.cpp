@@ -191,5 +191,5 @@ void UDiceRollScreenWidget::ChangeScreen(int32 diceSum)
 	ADDakjiGameMode* gamemode = UMyStaticLibrary::GetGameMode(this);
 	ADDakjiPlayerController* pc = (ADDakjiPlayerController*)GWorld->GetFirstPlayerController();
 	gamemode->SetDicePower(diceSum);
-	gamemode->ChangeUIByPhase(Phase::Result);
+	gamemode->ChangePhase(Phase::Result);
 }

@@ -8,7 +8,7 @@
 #include "DDakjiGameMode.generated.h"
 
 DECLARE_DELEGATE_OneParam(FChangePlayerDelegate, Playing);
-DECLARE_DELEGATE_OneParam(FPhaseChangeDelegate, Phase);
+DECLARE_MULTICAST_DELEGATE_OneParam(FPhaseChangeDelegate, Phase);
 
 UCLASS()
 class DDAKJI_API ADDakjiGameMode : public AGameMode
@@ -46,22 +46,9 @@ public:
 
 public:
 	UFUNCTION(BlueprintCallable)
-	void ChangeUIByPhase(Phase phase);
+	void ChangePhase(Phase phase);
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
-		TSubclassOf<class UUserWidget> mainUIWidget;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
-		TSubclassOf<class UUserWidget> selectUIWidget;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
-		TSubclassOf<class UUserWidget> startUIWidget;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
-		TSubclassOf<class UUserWidget> targetUIWidget;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
-		TSubclassOf<class UUserWidget> powerUIWidget;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
-		TSubclassOf<class UUserWidget> resultUIWidget;
-
 
 	FPhaseChangeDelegate PhaseChangeDelegate;
 	FChangePlayerDelegate ChangePlayerDelegate;
