@@ -5,6 +5,9 @@
 #include "DDakjiGameMode.h"
 #include "MyStaticLibrary.h"
 #include "TargetWidget.h"
+#include "MyHUD.h"
+#include "TargetWidget.h"
+#include "DiceRollScreenWidget.h"
 
 #include "Engine/Engine.h"
 
@@ -30,12 +33,18 @@ void AComAIController::PostInitializeComponents()
 	UE_LOG(LogTemp, Warning, TEXT("AComAIController PostInitializeComponents"));
 
 	ADDakjiGameMode* gameMode = UMyStaticLibrary::GetGameMode(this);
-	gameMode->PhaseChangeDelegate.AddUObject(this, &AComAIController::PhaseChanged);
-	//gameMode->ChangePlayerDelegate.BindUObject(this, &ADDakjiPlayerController::SetInputByPlayer);
+	if (gameMode) gameMode->PhaseChangeDelegate.AddUObject(this, &AComAIController::PhaseChanged);	
 }
 
 void AComAIController::PhaseChanged(Phase phase)
 {
+	UE_LOG(LogTemp, Warning, TEXT("AComAIController PhaseChanged"));
+
+
+	ADDakjiGameMode* gameMode = UMyStaticLibrary::GetGameMode(this);
+
+	if (gameMode == nullptr || gameMode->GetCurrentPlayer() != Playing::Computer) return;
+
 	switch (phase)
 	{
 	case Main:
@@ -45,8 +54,10 @@ void AComAIController::PhaseChanged(Phase phase)
 	case Start:
 		break;
 	case Target:
+		SimulateClick();
 		break;
 	case Powering:
+		SimulateDiceRoll();
 		break;
 	case Result:
 		break;
@@ -60,16 +71,18 @@ void AComAIController::SimulateClick()
 	//랜덤 지점을 구한다
 	const FVector2D &ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 
-	int rx, ry;
+	int32 rx, ry;
 
 	//r = (double)rand() / (RAND_MAX + 1) * (range_max - range_min) + range_min;
 	rx = (double)rand() / (RAND_MAX + 1) * ViewportSize.X;
 	ry = (double)rand() / (RAND_MAX + 1) * ViewportSize.Y;
 
-	//이동 없이 클릭만 우선 구현해보자
-	ADDakjiGameMode* gameMode = UMyStaticLibrary::GetGameMode(this);
-//	UTargetWidget* targetWidget = gameMode->testTargetUIWidget.Get();	
-
+	//위젯 함수를 통해 클릭한 것처럼 판정
+	AMyHUD* hud = Cast<AMyHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
+	if (hud)
+	{
+		Cast<UTargetWidget>(hud->GetCurrentUI())->SimulateClick(rx, ry);
+	}
 }
 
 void AComAIController::SimulateDiceRoll()
@@ -77,5 +90,12 @@ void AComAIController::SimulateDiceRoll()
 	int r1 = (double)rand() / (RAND_MAX + 1) * 5;
 	int r2 = (double)rand() / (RAND_MAX + 1) * 5;
 	int r3 = (double)rand() / (RAND_MAX + 1) * 5;
+
+	//위젯 함수를 통해 클릭한 것처럼 판정
+	AMyHUD* hud = Cast<AMyHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
+	if (hud)
+	{
+		Cast<UDiceRollScreenWidget>(hud->GetCurrentUI())->SimulateClick(r1, r2, r3);
+	}
 }
 

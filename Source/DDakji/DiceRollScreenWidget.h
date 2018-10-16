@@ -21,6 +21,8 @@ public:
 	void SetTimer(const UObject* object, FTimerHandle& timerHandle, FTimerDelegate& timerDelegate, float changeTime);
 	void ClearTimer(const UObject* object, FTimerHandle& timerHandle);
 
+#pragma region Get/Set functions
+
 public:
 	float GetDiceRollTime() { return diceRollTime; }
 	float GetRollSlowTime() { return rollSlowTime; }
@@ -37,6 +39,9 @@ public:
 	void SetBorder(UBorder* value) { border = value; }
 	void SetEnableRoll(bool value) { bEnableDiceRoll = value; }
 	void SetDiceNum(int value) { resultDiceNum = value; }
+
+#pragma endregion
+
 private:
 	float diceRollTime;
 	float rollSlowTime;
@@ -63,6 +68,9 @@ class DDAKJI_API UDiceRollScreenWidget : public UUserWidget
 public:
 	UDiceRollScreenWidget(const FObjectInitializer& objectInitializer);
 	virtual void NativeConstruct();
+
+public:
+	void SimulateClick(int32 dice1, int32 dice2, int32 dice3);
 
 protected:
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;

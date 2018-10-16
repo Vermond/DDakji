@@ -33,6 +33,8 @@ public:
 		TSubclassOf<class UUserWidget> resultUIWidget;
 
 	void ChangeUI(Phase phase);
+	UUserWidget* GetCurrentUI();
+	
 
 private:
 	UFUNCTION()

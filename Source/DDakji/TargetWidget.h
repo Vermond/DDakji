@@ -26,6 +26,8 @@ public:
 	void SetMousePosToTarget();
 	void MoveTarget(float posX, float posY);
 
+	void SimulateClick(int32 x, int32 y);
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 		class UTextBlock* targetWidget;

@@ -77,3 +77,8 @@ void AMyHUD::SetUIDelayed(TSubclassOf<class UUserWidget> targetWidget, bool show
 
 	GetWorldTimerManager().SetTimer(TimerHandle, tempDelegate, .75f, false);
 }
+
+UUserWidget* AMyHUD::GetCurrentUI()
+{
+	return currentUI;
+}

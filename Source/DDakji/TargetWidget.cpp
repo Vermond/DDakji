@@ -135,3 +135,11 @@ void UTargetWidget::GetWorldPosViaMouse()
 		gamemode->ChangePhase(Phase::Powering);
 	}
 }
+
+void UTargetWidget::SimulateClick(int32 x, int32 y)
+{
+	//우선 호출되는지 확인하기
+	UE_LOG(LogTemp, Warning, TEXT("UTargetWidget SimulateClick"));
+
+
+}

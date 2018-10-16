@@ -193,3 +193,9 @@ void UDiceRollScreenWidget::ChangeScreen(int32 diceSum)
 	gamemode->SetDicePower(diceSum);
 	gamemode->ChangePhase(Phase::Result);
 }
+
+void UDiceRollScreenWidget::SimulateClick(int32 dice1, int32 dice2, int32 dice3)
+{
+	//우선 호출되는지 확인하기
+	UE_LOG(LogTemp, Warning, TEXT("UDiceRollScreenWidget SimulateClick"));
+}
