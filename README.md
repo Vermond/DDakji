@@ -5,8 +5,8 @@
 
 언리얼 4.20 연습용으로 제작되었습니다.
 
-# 자세한 문서
-업데이트 예정
+# 관련 문서
+https://docs.google.com/document/d/1gYYbmRLA8hVzXyhqpErNIR3req6U2d9Cpmw95OXA4SA/edit?usp=sharing
 
 
 
